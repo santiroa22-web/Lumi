@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.screens
+package com.udistrital.lumi.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,26 +24,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
-import com.udistrital.lumi.data.DatosDePrueba
 import com.udistrital.lumi.data.MensajeChat
 import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.viewmodel.ChatViewModel
 
-// En el mockup el chat tiene la barra de abajo, pero aqui se quito
-// para que el teclado no tape el campo de texto y porque ya hay flecha para volver.
 @Composable
 fun ChatScreen(
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    viewModel: ChatViewModel = viewModel()
 ) {
-    // Lista de mensajes en memoria (sin backend todavia)
-    val mensajes = remember { mutableStateListOf<MensajeChat>().apply { addAll(DatosDePrueba.mensajesIniciales) } }
-    var textoNuevo by remember { mutableStateOf("") }
-    var contadorRespuestas by remember { mutableIntStateOf(0) }
     val estadoLista = rememberLazyListState()
 
-    // Cada vez que llega un mensaje se baja al final de la lista
-    LaunchedEffect(mensajes.size) {
-        if (mensajes.isNotEmpty()) estadoLista.animateScrollToItem(mensajes.size - 1)
+    // Cada vez que se agrega un mensaje desplaza automáticamente al final
+    LaunchedEffect(viewModel.mensajes.size) {
+        if (viewModel.mensajes.isNotEmpty()) {
+            estadoLista.animateScrollToItem(viewModel.mensajes.size - 1)
+        }
     }
 
     Column(
@@ -80,6 +78,7 @@ fun ChatScreen(
             }
         }
 
+        // Historial de chat
         LazyColumn(
             state = estadoLista,
             modifier = Modifier
@@ -94,7 +93,7 @@ fun ChatScreen(
                     Text("HOY", fontSize = 11.sp, color = TextoGris)
                 }
             }
-            items(mensajes) { mensaje ->
+            items(viewModel.mensajes) { mensaje ->
                 BurbujaMensaje(mensaje)
             }
         }
@@ -108,8 +107,8 @@ fun ChatScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
-                value = textoNuevo,
-                onValueChange = { textoNuevo = it },
+                value = viewModel.textoNuevo,
+                onValueChange = { viewModel.onTextoChange(it) },
                 placeholder = { Text("Escribe un mensaje a Lumi", color = Color.LightGray) },
                 leadingIcon = { Icon(Icons.Outlined.EmojiEmotions, contentDescription = null, tint = TextoGris) },
                 modifier = Modifier.weight(1f),
@@ -124,16 +123,7 @@ fun ChatScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             FilledIconButton(
-                onClick = {
-                    if (textoNuevo.isNotBlank()) {
-                        mensajes.add(MensajeChat(textoNuevo.trim(), false, "Ahora"))
-                        // Respuesta de prueba de Lumi (despues vendra del backend)
-                        val respuesta = DatosDePrueba.respuestasLumi[contadorRespuestas % DatosDePrueba.respuestasLumi.size]
-                        mensajes.add(MensajeChat(respuesta, true, "Ahora"))
-                        contadorRespuestas++
-                        textoNuevo = ""
-                    }
-                },
+                onClick = { viewModel.enviarMensaje() },
                 modifier = Modifier.size(52.dp),
                 colors = IconButtonDefaults.filledIconButtonColors(containerColor = VerdeLumi)
             ) {

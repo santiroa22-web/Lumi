@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.screens
+package com.udistrital.lumi.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -16,7 +16,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,29 +27,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
 import com.udistrital.lumi.ui.components.BarraEstadistica
 import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.viewmodel.MascotaViewModel // Importación correcta en singular
 
 @Composable
 fun MascotaScreen(
-    onHablarClick: () -> Unit = {}
+    onHablarClick: () -> Unit = {},
+    viewModel: MascotaViewModel = viewModel() // Casing corregido: MascotaViewModel
 ) {
-    // Valores de prueba. Por ahora los botones suben las barras localmente
-    // para que se vea que la mascota reacciona (luego se guardara en el backend)
-    var nutricion by remember { mutableIntStateOf(85) }
-    var felicidad by remember { mutableIntStateOf(92) }
-    var energia by remember { mutableIntStateOf(78) }
-    var bienestar by remember { mutableIntStateOf(95) }
-
-    // El estado de la mascota cambia segun el promedio de las barras
-    val promedio = (nutricion + felicidad + energia + bienestar) / 4
-    val estado = when {
-        promedio >= 85 -> "radiante"
-        promedio >= 60 -> "contento"
-        else -> "cansado"
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,44 +71,88 @@ fun MascotaScreen(
                 border = BorderStroke(1.dp, VerdeSuave),
                 modifier = Modifier.align(Alignment.TopEnd)
             ) {
-                Row(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = VerdeLumi, modifier = Modifier.size(14.dp))
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.AutoAwesome,
+                        contentDescription = null,
+                        tint = VerdeLumi,
+                        modifier = Modifier.size(14.dp)
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(estado, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = VerdeLumi)
+                    Text(
+                        text = viewModel.estado,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = VerdeLumi
+                    )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Surface(shape = RoundedCornerShape(24.dp), color = Color.White, shadowElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                BarraEstadistica("nutrición", nutricion, Icons.Default.Restaurant, VerdeLumi)
-                BarraEstadistica("felicidad", felicidad, Icons.Default.FavoriteBorder, RojoSuave)
-                BarraEstadistica("energía", energia, Icons.Default.Bolt, AmarilloEnergia)
-                BarraEstadistica("bienestar", bienestar, Icons.Default.Spa, Color(0xFF7986CB))
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color.White,
+            shadowElevation = 1.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                BarraEstadistica("nutrición", viewModel.nutricion, Icons.Default.Restaurant, VerdeLumi)
+                BarraEstadistica("felicidad", viewModel.felicidad, Icons.Default.FavoriteBorder, RojoSuave)
+                BarraEstadistica("energía", viewModel.energia, Icons.Default.Bolt, AmarilloEnergia)
+                BarraEstadistica("bienestar", viewModel.bienestar, Icons.Default.Spa, Color(0xFF7986CB))
             }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Botones de accion (en el mockup salen al hacer scroll)
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            BotonMascota("ALIMENTAR", Icons.Default.Restaurant, true, Modifier.weight(1f)) {
-                nutricion = minOf(100, nutricion + 5)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            BotonMascota(
+                texto = "ALIMENTAR",
+                icono = Icons.Default.Restaurant,
+                relleno = true,
+                modifier = Modifier.weight(1f)
+            ) {
+                viewModel.alimentar()
             }
-            BotonMascota("JUGAR", Icons.Default.AutoAwesome, false, Modifier.weight(1f)) {
-                felicidad = minOf(100, felicidad + 5)
-                energia = maxOf(0, energia - 3)
+            BotonMascota(
+                texto = "JUGAR",
+                icono = Icons.Default.AutoAwesome,
+                relleno = false,
+                modifier = Modifier.weight(1f)
+            ) {
+                viewModel.jugar()
             }
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            BotonMascota("PASEAR", Icons.AutoMirrored.Filled.DirectionsWalk, false, Modifier.weight(1f)) {
-                bienestar = minOf(100, bienestar + 5)
-                energia = maxOf(0, energia - 3)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            BotonMascota(
+                texto = "PASEAR",
+                icono = Icons.AutoMirrored.Filled.DirectionsWalk,
+                relleno = false,
+                modifier = Modifier.weight(1f)
+            ) {
+                viewModel.pasear()
             }
-            BotonMascota("HABLAR", Icons.Default.ChatBubbleOutline, false, Modifier.weight(1f)) {
+            BotonMascota(
+                texto = "HABLAR",
+                icono = Icons.Default.ChatBubbleOutline,
+                relleno = false,
+                modifier = Modifier.weight(1f)
+            ) {
                 onHablarClick()
             }
         }

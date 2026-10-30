@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.screens
+package com.udistrital.lumi.view
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background

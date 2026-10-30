@@ -19,9 +19,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.udistrital.lumi.ui.screens.*
+
 import com.udistrital.lumi.ui.theme.TextoGris
 import com.udistrital.lumi.ui.theme.VerdeClaro
 import com.udistrital.lumi.ui.theme.VerdeLumi
+import com.udistrital.lumi.view.CalendarioScreen
+import com.udistrital.lumi.view.ChatScreen
+import com.udistrital.lumi.view.CheckInAnimoScreen
+import com.udistrital.lumi.view.HomeScreen
+import com.udistrital.lumi.view.LoginScreen
+import com.udistrital.lumi.view.MascotaScreen
+import com.udistrital.lumi.view.OnboardingScreen
+import com.udistrital.lumi.view.PausaActivaScreen
+import com.udistrital.lumi.view.RachaScreen
+import com.udistrital.lumi.view.RegisterScreen
+import com.udistrital.lumi.view.VinculosScreen
 
 // Rutas de la app. Antes se usaba un enum con un "when" en MainActivity,
 // pero asi no habia pila de navegacion y el boton atras cerraba la app.
@@ -128,7 +140,12 @@ fun LumiApp() {
                 )
             }
             composable(Rutas.RACHA) {
-                RachaScreen(onVolver = { navController.popBackStack(Rutas.INICIO, inclusive = false) })
+                RachaScreen(onVolver = {
+                    navController.popBackStack(
+                        Rutas.INICIO,
+                        inclusive = false
+                    )
+                })
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.screens
+package com.udistrital.lumi.view
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -15,16 +15,17 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.SentimentDissatisfied
 import androidx.compose.material.icons.filled.SentimentNeutral
 import androidx.compose.material.icons.filled.SentimentSatisfied
 import androidx.compose.material.icons.filled.SentimentVeryDissatisfied
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -32,29 +33,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
-import com.udistrital.lumi.data.DatosDePrueba
 import com.udistrital.lumi.ui.components.BotonPrincipal
 import com.udistrital.lumi.ui.components.EncabezadoCheckIn
 import com.udistrital.lumi.ui.theme.*
-
-// ---------------------------------------------------------------
-// Registro diario (check-in) en 3 pasos:
-//   1. ¿Cómo te sientes hoy?
-//   2. Pausa activa (juego de parejas)
-//   3. Tu entorno y vínculos
-// Al terminar se muestra la pantalla de racha.
-// ---------------------------------------------------------------
+import com.udistrital.lumi.viewmodel.Carta
+import com.udistrital.lumi.viewmodel.CheckInViewModel
 
 // PASO 1
 @Composable
 fun CheckInAnimoScreen(
     onCerrar: () -> Unit = {},
-    onContinuar: () -> Unit = {}
+    onContinuar: () -> Unit = {},
+    viewModel: CheckInViewModel = viewModel()
 ) {
-    var seleccion by remember { mutableStateOf<String?>(null) }
-
     val opciones = listOf(
         "Excelente" to Icons.Default.FavoriteBorder,
         "Tranquilo" to Icons.Default.SentimentSatisfied,
@@ -79,8 +72,6 @@ fun CheckInAnimoScreen(
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            // En el mockup hay una foto decorativa; se cambio por la mascota Lumi
-            // para no usar imagenes de internet sin licencia
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -102,13 +93,19 @@ fun CheckInAnimoScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             opciones.forEach { (texto, icono) ->
-                OpcionLista(texto, icono, seleccion == texto) { seleccion = texto }
+                OpcionLista(
+                    texto = texto,
+                    icono = icono,
+                    seleccionada = viewModel.animoSeleccionado == texto
+                ) {
+                    viewModel.seleccionarAnimo(texto)
+                }
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        BotonPrincipal(texto = "Continuar", onClick = onContinuar, habilitado = seleccion != null)
+        BotonPrincipal(texto = "Continuar", onClick = onContinuar, habilitado = viewModel.animoSeleccionado != null)
     }
 }
 
@@ -131,37 +128,13 @@ fun OpcionLista(texto: String, icono: ImageVector, seleccionada: Boolean, onClic
     }
 }
 
-// PASO 2 - Pausa activa: juego de memoria para encontrar las parejas
-data class Carta(val id: Int, val icono: ImageVector)
-
+// PASO 2 - Pausa activa
 @Composable
 fun PausaActivaScreen(
     onCerrar: () -> Unit = {},
-    onContinuar: () -> Unit = {}
+    onContinuar: () -> Unit = {},
+    viewModel: CheckInViewModel = viewModel()
 ) {
-    // 3 parejas = 6 cartas, se barajan una sola vez
-    val cartas = remember {
-        val iconos = listOf(Icons.Default.FavoriteBorder, Icons.Default.AutoAwesome, Icons.Default.EmojiEvents)
-        (iconos + iconos).mapIndexed { i, icono -> Carta(i, icono) }.shuffled()
-    }
-    val encontradas = remember { mutableStateListOf<Int>() } // ids de cartas ya emparejadas
-    val volteadas = remember { mutableStateListOf<Int>() }   // maximo 2 a la vez
-    val juegoTerminado = encontradas.size == cartas.size
-
-    // Cuando hay 2 cartas volteadas se revisa si son pareja
-    LaunchedEffect(volteadas.size) {
-        if (volteadas.size == 2) {
-            val c1 = cartas.first { it.id == volteadas[0] }
-            val c2 = cartas.first { it.id == volteadas[1] }
-            if (c1.icono == c2.icono) {
-                encontradas.addAll(volteadas)
-            } else {
-                delay(700) // se dejan ver un momento antes de taparlas
-            }
-            volteadas.clear()
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -190,34 +163,32 @@ fun PausaActivaScreen(
             for (fila in 0 until 3) {
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.fillMaxWidth()) {
                     for (col in 0 until 2) {
-                        val carta = cartas[fila * 2 + col]
-                        val visible = carta.id in encontradas || carta.id in volteadas
+                        val carta = viewModel.cartas[fila * 2 + col]
+                        val visible = carta.id in viewModel.encontradas || carta.id in viewModel.volteadas
                         CartaMemoria(
                             carta = carta,
                             visible = visible,
-                            encontrada = carta.id in encontradas,
+                            encontrada = carta.id in viewModel.encontradas,
                             modifier = Modifier.weight(1f)
                         ) {
-                            if (!visible && volteadas.size < 2) volteadas.add(carta.id)
+                            viewModel.voltearCarta(carta.id)
                         }
                     }
                 }
                 Spacer(modifier = Modifier.height(14.dp))
             }
 
-            if (juegoTerminado) {
+            if (viewModel.juegoTerminado) {
                 Text("¡Muy bien! Completaste la pausa activa 🎉", color = VerdeLumi, fontWeight = FontWeight.Bold)
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        // Se puede saltar el juego si el usuario no quiere jugar (no es obligatorio)
-        BotonPrincipal(texto = if (juegoTerminado) "Continuar" else "Saltar", onClick = onContinuar)
+        BotonPrincipal(texto = if (viewModel.juegoTerminado) "Continuar" else "Saltar", onClick = onContinuar)
     }
 }
 
-// Fondo calido del paso 2 (como en el mockup)
-private fun fondoCalido() = androidx.compose.ui.graphics.Brush.verticalGradient(
+private fun fondoCalido() = Brush.verticalGradient(
     listOf(Color(0xFFF3E6DD), Color(0xFFF7F1EC), Color(0xFFF4F6F9))
 )
 
@@ -260,17 +231,9 @@ fun CartaMemoria(
 @Composable
 fun VinculosScreen(
     onCerrar: () -> Unit = {},
-    onFinalizar: () -> Unit = {}
+    onFinalizar: () -> Unit = {},
+    viewModel: CheckInViewModel = viewModel()
 ) {
-    // Cada pregunta guarda su respuesta en este mapa
-    val respuestas = remember { mutableStateMapOf<String, String>() }
-
-    val preguntas = listOf(
-        "¿Cómo estuvo la relación con tu familia hoy?" to listOf("Muy cercana", "Tranquila", "Hubo tensión", "Me sentí incomprendido"),
-        "¿Te sentiste acompañado hoy?" to listOf("Sí, apoyado", "Lo normal", "Me sentí solo"),
-        "¿Hubo momentos de mucho estrés?" to listOf("No", "Un poco", "Sí, bastante")
-    )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -289,15 +252,17 @@ fun VinculosScreen(
             Text("Control rápido de cómo estuvieron tus relaciones hoy", fontSize = 14.sp, color = TextoGris)
             Spacer(modifier = Modifier.height(16.dp))
 
-            preguntas.forEach { (pregunta, opciones) ->
+            viewModel.preguntas.forEach { (pregunta, opciones) ->
                 Surface(shape = RoundedCornerShape(20.dp), color = Color.White, shadowElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(pregunta, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = TextoOscuro)
                         Spacer(modifier = Modifier.height(10.dp))
                         FilasDeChips(
                             opciones = opciones,
-                            seleccionada = respuestas[pregunta],
-                            onSeleccion = { respuestas[pregunta] = it }
+                            seleccionada = viewModel.respuestas[pregunta],
+                            onSeleccion = { respuesta ->
+                                viewModel.seleccionarRespuesta(pregunta, respuesta)
+                            }
                         )
                     }
                 }
@@ -309,12 +274,11 @@ fun VinculosScreen(
         BotonPrincipal(
             texto = "Finalizar Registro ✨",
             onClick = onFinalizar,
-            habilitado = respuestas.size == preguntas.size
+            habilitado = viewModel.respuestas.size == viewModel.preguntas.size
         )
     }
 }
 
-// Pone los chips de 2 en 2 (FlowRow era experimental y nos dio problemas)
 @Composable
 fun FilasDeChips(opciones: List<String>, seleccionada: String?, onSeleccion: (String) -> Unit) {
     opciones.chunked(2).forEach { par ->
@@ -343,10 +307,9 @@ fun FilasDeChips(opciones: List<String>, seleccionada: String?, onSeleccion: (St
 // Pantalla final: racha aumentada
 @Composable
 fun RachaScreen(
-    onVolver: () -> Unit = {}
+    onVolver: () -> Unit = {},
+    viewModel: CheckInViewModel = viewModel()
 ) {
-    val nuevaRacha = DatosDePrueba.DIAS_RACHA + 1
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -369,7 +332,7 @@ fun RachaScreen(
             Row(modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = NaranjaRacha, modifier = Modifier.size(32.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("$nuevaRacha", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
+                Text("${viewModel.nuevaRacha}", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
                 Spacer(modifier = Modifier.width(6.dp))
                 Text("días", fontSize = 14.sp, color = TextoGris)
             }

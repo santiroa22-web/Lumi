@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.screens
+package com.udistrital.lumi.view
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -28,19 +28,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
-import com.udistrital.lumi.data.DatosDePrueba
 import com.udistrital.lumi.ui.components.ChipRacha
 import com.udistrital.lumi.ui.components.SelectorAnimo
 import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
     onAnimoClick: (Int) -> Unit = {},
-    onAvatarClick: () -> Unit = {}
+    onAvatarClick: () -> Unit = {},
+    viewModel: HomeViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    var animoSeleccionado by remember { mutableStateOf<Int?>(null) }
 
     Column(
         modifier = Modifier
@@ -75,25 +76,26 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Bienvenida y Racha
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Hola, ${DatosDePrueba.NOMBRE_USUARIO} 👋",
+                    text = "Hola, ${viewModel.nombreUsuario} 👋",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextoOscuro
                 )
                 Text("Es un buen día para cuidarte.", fontSize = 14.sp, color = TextoGris)
             }
-            ChipRacha(dias = DatosDePrueba.DIAS_RACHA)
+            ChipRacha(dias = viewModel.diasRacha)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Tarjeta "¿Cómo te sientes hoy?" -> al tocar una carita empieza el registro diario
+        // Tarjeta "¿Cómo te sientes hoy?"
         Surface(
             shape = RoundedCornerShape(24.dp),
             color = Color.White,
@@ -107,10 +109,9 @@ fun HomeScreen(
                 Text("¿Cómo te sientes hoy?", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
                 Spacer(modifier = Modifier.height(16.dp))
                 SelectorAnimo(
-                    seleccionado = animoSeleccionado,
-                    onSeleccion = {
-                        animoSeleccionado = it
-                        onAnimoClick(it)
+                    seleccionado = viewModel.animoSeleccionado,
+                    onSeleccion = { animo ->
+                        viewModel.seleccionarAnimo(animo, onAnimoClick)
                     }
                 )
             }
@@ -118,6 +119,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Sección Consejo de hoy
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -125,7 +127,7 @@ fun HomeScreen(
         ) {
             Text("Consejo de hoy", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = TextoOscuro)
             Text(
-                "VER MÁS",
+                text = "VER MÁS",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 color = VerdeLumi,
@@ -151,7 +153,7 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Tómate 5 minutos para respirar profundamente antes de empezar tu siguiente tarea.",
+                        text = "Tómate 5 minutos para respirar profundamente antes de empezar tu siguiente tarea.",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F5E50),
@@ -167,6 +169,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Actividades rápidas
         Text("Actividades rápidas", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = TextoOscuro)
         Spacer(modifier = Modifier.height(12.dp))
 

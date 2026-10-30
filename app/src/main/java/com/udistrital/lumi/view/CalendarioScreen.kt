@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.screens
+package com.udistrital.lumi.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -29,17 +29,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.udistrital.lumi.data.DatosDePrueba
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.data.DiaSemana
 import com.udistrital.lumi.ui.components.iconoAnimo
 import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.viewmodel.CalendarioViewModel
 
-// Los dos mockups de "Tu Semana en Lumi" eran la misma pantalla con scroll,
-// por eso se hicieron en una sola pantalla.
 @Composable
-fun CalendarioScreen() {
-    // Por defecto se muestra el detalle del ultimo dia (domingo)
-    var diaSeleccionado by remember { mutableStateOf(DatosDePrueba.semana.last()) }
+fun CalendarioScreen(
+    viewModel: CalendarioViewModel = viewModel()
+) {
+    val diaSeleccionado = viewModel.diaSeleccionado
+    val semana = viewModel.semana
 
     Column(
         modifier = Modifier
@@ -62,7 +63,6 @@ fun CalendarioScreen() {
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Estado de Ánimo", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = TextoOscuro, modifier = Modifier.weight(1f))
-            // Las flechas aun no cambian de semana, eso se hara cuando haya backend
             IconButton(onClick = { }) { Icon(Icons.Default.ChevronLeft, contentDescription = "Semana anterior") }
             IconButton(onClick = { }) { Icon(Icons.Default.ChevronRight, contentDescription = "Semana siguiente") }
         }
@@ -70,34 +70,45 @@ fun CalendarioScreen() {
         Spacer(modifier = Modifier.height(12.dp))
 
         // Primera fila: lunes a jueves, segunda fila: viernes a domingo
-        val semana = DatosDePrueba.semana
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
             for (i in 0..3) {
-                TarjetaDia(semana[i], semana[i] == diaSeleccionado, Modifier.weight(1f)) { diaSeleccionado = semana[i] }
+                TarjetaDia(
+                    dia = semana[i],
+                    seleccionado = semana[i] == diaSeleccionado,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    viewModel.seleccionarDia(semana[i])
+                }
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
             for (i in 4..6) {
-                TarjetaDia(semana[i], semana[i] == diaSeleccionado, Modifier.weight(1f)) { diaSeleccionado = semana[i] }
+                TarjetaDia(
+                    dia = semana[i],
+                    seleccionado = semana[i] == diaSeleccionado,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    viewModel.seleccionarDia(semana[i])
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Detalle del dia seleccionado
+        // Detalle del día seleccionado
         Surface(shape = RoundedCornerShape(20.dp), color = VerdeClaro, modifier = Modifier.fillMaxWidth()) {
             Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.WbSunny, contentDescription = null, tint = VerdeLumi, modifier = Modifier.size(32.dp))
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text("DETALLE DEL ${diaSeleccionado.nombre}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
-                    Text(textoDetalle(diaSeleccionado.animo), fontSize = 13.sp, color = TextoGris)
+                    Text(viewModel.obtenerTextoDetalle(diaSeleccionado.animo), fontSize = 13.sp, color = TextoGris)
                 }
                 Surface(shape = RoundedCornerShape(50), color = Color.White, border = BorderStroke(1.dp, VerdeSuave)) {
                     Text(
-                        if (diaSeleccionado.animo >= 0) "Completado" else "Pendiente",
+                        text = if (diaSeleccionado.animo >= 0) "Completado" else "Pendiente",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = VerdeLumi,
@@ -123,8 +134,6 @@ fun CalendarioScreen() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // En el mockup hay una ilustracion de una planta; se reemplazo por un icono
-                // porque no tenemos la imagen en buena calidad
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -154,7 +163,7 @@ fun CalendarioScreen() {
 
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     MiniEstadistica("Promedio", "positivo", Icons.Outlined.SentimentSatisfied, Modifier.weight(1f))
-                    MiniEstadistica("Racha", "${DatosDePrueba.DIAS_RACHA} días", Icons.Default.Bolt, Modifier.weight(1f))
+                    MiniEstadistica("Racha", "${viewModel.diasRacha} días", Icons.Default.Bolt, Modifier.weight(1f))
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -186,7 +195,6 @@ fun TarjetaDia(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    // Si el dia fue malo la carita sale en rojo, como en el mockup
     val colorCarita = when {
         seleccionado -> Color.White
         dia.animo in 0..1 -> RojoSuave
@@ -234,14 +242,5 @@ fun MiniEstadistica(titulo: String, valor: String, icono: ImageVector, modifier:
                 Text(valor, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextoOscuro)
             }
         }
-    }
-}
-
-fun textoDetalle(animo: Int): String {
-    return when (animo) {
-        0, 1 -> "Día difícil, está bien no estar bien"
-        2 -> "Día tranquilo y neutral"
-        3, 4 -> "Clima emocional tranquilo"
-        else -> "Aún no has hecho tu registro de hoy"
     }
 }
