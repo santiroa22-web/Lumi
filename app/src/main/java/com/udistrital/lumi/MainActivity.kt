@@ -6,33 +6,53 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.udistrital.lumi.views.screens.LoginScreen
+import com.udistrital.lumi.views.screens.OnboardingScreen
+import com.udistrital.lumi.views.screens.RegisterScreen
+
+enum class Screen {
+    LOGIN,
+    REGISTER,
+    ONBOARDING
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                // Contenedor principal
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginScreen()
+                    var currentScreen by remember { mutableStateOf(Screen.LOGIN) }
+
+                    when (currentScreen) {
+                        Screen.LOGIN -> {
+                            LoginScreen(
+                                onRegisterClick = { currentScreen = Screen.REGISTER }
+                            )
+                        }
+                        Screen.REGISTER -> {
+                            RegisterScreen(
+                                onBackClick = { currentScreen = Screen.LOGIN },
+                                onLoginClick = { currentScreen = Screen.LOGIN },
+                                onCreateAccountClick = { currentScreen = Screen.ONBOARDING }
+                            )
+                        }
+                        Screen.ONBOARDING -> {
+                            OnboardingScreen(
+                                onBackClick = { currentScreen = Screen.REGISTER },
+                                onFinishOnboarding = {
+                                    // Siguiente pantalla principal o home cuando se implemente
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-// Esta función te permite previsualizar la pantalla directamente en Android Studio
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun LoginScreenPreview() {
-    MaterialTheme {
-        LoginScreen()
     }
 }

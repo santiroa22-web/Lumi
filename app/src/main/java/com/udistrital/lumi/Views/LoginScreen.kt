@@ -2,6 +2,7 @@ package com.udistrital.lumi.views.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,13 +24,14 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
-    // Gradiente difuminado replicando la imagen
+fun LoginScreen(
+    onRegisterClick: () -> Unit = {}
+) {
     val backgroundGradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFEBF4FF), // Azul claro arriba
-            Color(0xFFFDE8E8), // Durazno/Rosa al medio
-            Color(0xFFE4E5F1)  // Gris/Morado abajo
+            Color(0xFFEBF4FF),
+            Color(0xFFFDE8E8),
+            Color(0xFFE4E5F1)
         )
     )
 
@@ -45,28 +47,14 @@ fun LoginScreen() {
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Logo circular
-            Surface(
-                shape = CircleShape,
-                color = colorPrimario,
-                modifier = Modifier.size(72.dp)
-            ) {
-                // Remplaza android.R.drawable.ic_menu_add por tu icono de destello SVG
-                Icon(
-                    painter = painterResource(id = android.R.drawable.ic_menu_add),
-                    contentDescription = "Lumi Logo",
-                    tint = Color.White,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+
+            Spacer(modifier = Modifier.height(80.dp))
 
             // Textos de Bienvenida
             Text(
@@ -75,7 +63,7 @@ fun LoginScreen() {
                 fontWeight = FontWeight.Bold,
                 color = colorTextoOscuro
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Tu espacio seguro para la paz mental\ny el bienestar diario.",
                 fontSize = 14.sp,
@@ -84,17 +72,17 @@ fun LoginScreen() {
                 lineHeight = 20.sp
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(  100.dp))
 
             // Input Correo
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = "CORREO ELECTRÓNICO",
-                    fontSize = 12.sp,
+                    fontSize = 11.sp,
                     color = colorTextoGris,
                     fontWeight = FontWeight.SemiBold
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 TextField(
                     value = "",
                     onValueChange = {},
@@ -114,7 +102,7 @@ fun LoginScreen() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Input Contraseña
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -125,7 +113,7 @@ fun LoginScreen() {
                 ) {
                     Text(
                         text = "CONTRASEÑA",
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         color = colorTextoGris,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -136,7 +124,7 @@ fun LoginScreen() {
                         fontWeight = FontWeight.Medium
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 TextField(
                     value = "",
                     onValueChange = {},
@@ -156,14 +144,14 @@ fun LoginScreen() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             // Botón Iniciar Sesión
             Button(
                 onClick = { },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorPrimario),
                 shape = RoundedCornerShape(50)
             ) {
@@ -176,19 +164,32 @@ fun LoginScreen() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // Divisor
-            Text(text = "o continúa con", fontSize = 14.sp, color = Color.LightGray)
+            // Divisor "o continúa con"
+            Text(text = "o continúa con", fontSize = 13.sp, color = colorTextoGris)
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón Registrarse
+            // Botones de Redes Sociales
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SocialIconButton(text = "G", textColor = Color(0xFF4285F4)) {}
+                SocialIconButton(text = "f", textColor = Color(0xFF1877F2)) {}
+                SocialIconButton(text = "", textColor = Color.Black) {}
+            }
+
+            // Espaciador para empujar el botón al fondo
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Botón Registrarse (Abre RegisterScreen)
             OutlinedButton(
-                onClick = { },
+                onClick = onRegisterClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(52.dp),
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = colorPrimario),
                 border = BorderStroke(1.dp, colorPrimario)
@@ -196,14 +197,43 @@ fun LoginScreen() {
                 Text("Registrarse", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Footer
             Text(
                 text = "Al entrar, aceptas nuestros Términos y Privacidad",
-                fontSize = 12.sp,
+                fontSize = 11.sp,
                 color = colorTextoGris,
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun SocialIconButton(
+    text: String,
+    textColor: Color,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .size(48.dp)
+            .clickable { onClick() },
+        shape = CircleShape,
+        color = Color.White.copy(alpha = 0.8f),
+        border = BorderStroke(1.dp, Color.White),
+        shadowElevation = 2.dp
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                text = text,
+                color = textColor,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
