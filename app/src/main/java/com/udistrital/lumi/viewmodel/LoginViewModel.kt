@@ -1,4 +1,4 @@
-package com.udistrital.lumi.viewmodels
+package com.udistrital.lumi.viewmodel
 
 import androidx.lifecycle.ViewModel
 

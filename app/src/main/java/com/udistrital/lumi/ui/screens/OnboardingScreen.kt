@@ -1,7 +1,6 @@
-package com.udistrital.lumi.views.screens
+package com.udistrital.lumi.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.udistrital.lumi.R
+import com.udistrital.lumi.ui.components.BotonPrincipal
+import com.udistrital.lumi.ui.theme.*
 
 @Composable
 fun OnboardingScreen(
@@ -37,28 +38,23 @@ fun OnboardingScreen(
         onBackClick()
     }
 
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFFF4F7FB),
-            Color(0xFFFDF8F5),
-            Color(0xFFF1F3F9)
-        )
-    )
-
-    val colorPrimario = Color(0xFF60C5B1)
-    val colorIconoFondo = Color(0xFFE2F6F3)
-    val colorTextoOscuro = Color(0xFF212529)
+    // Colores tomados del tema (ui/theme/Color.kt)
+    val colorPrimario = VerdeLumi
+    val colorIconoFondo = VerdeClaro
+    val colorTextoOscuro = TextoOscuro
 
     var selectedOcupacion by remember { mutableStateOf<String?>(null) }
     var selectedEntorno by remember { mutableStateOf<String?>(null) }
     var selectedCuidado by remember { mutableStateOf<String?>(null) }
+
+    val todoRespondido = selectedOcupacion != null && selectedEntorno != null && selectedCuidado != null
 
     val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundGradient)
+            .background(FondoSuave)
     ) {
         Column(
             modifier = Modifier
@@ -283,25 +279,13 @@ fun OnboardingScreen(
                 .background(Color.White.copy(alpha = 0.85f))
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            Button(
+            // Antes el boton siempre se veia gris aunque ya se hubiera respondido todo.
+            // Ahora se activa cuando el usuario responde las 3 preguntas.
+            BotonPrincipal(
+                texto = "Comenzar la experiencia",
                 onClick = onFinishOnboarding,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFE9ECEF),
-                    contentColor = Color(0xFF888888)
-                ),
-                shape = RoundedCornerShape(50)
-            ) {
-                Text("Comenzar la experiencia ", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+                habilitado = todoRespondido
+            )
         }
     }
 }
@@ -316,8 +300,6 @@ fun OptionGridCard(
     colorFondoIcono: Color,
     onClick: () -> Unit
 ) {
-    val borderColor by animateColorAsState(if (isSelected) colorPrimario else Color.Transparent, label = "borderColor")
-
     Surface(
         modifier = modifier
             .height(76.dp)
