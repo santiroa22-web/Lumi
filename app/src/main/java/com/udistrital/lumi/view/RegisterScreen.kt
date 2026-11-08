@@ -38,14 +38,13 @@ import com.udistrital.lumi.model.theme.VerdeLumi
 fun RegisterScreen(
     onBackClick: () -> Unit = {},
     onLoginClick: () -> Unit = {},
-    onCreateAccountClick: () -> Unit = {}
+    onCreateAccountClick: (String, String, String, Boolean) -> Unit = { _, _, _, _ -> }
 ) {
     BackHandler { onBackClick() }
 
     var nombre by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
-    // Antes venia marcado por defecto; los terminos los debe aceptar el usuario (consentimiento informado)
     var aceptaTerminos by remember { mutableStateOf(false) }
 
     val formularioValido = nombre.isNotBlank() &&
@@ -171,7 +170,7 @@ fun RegisterScreen(
 
             BotonPrincipal(
                 texto = "Crear Cuenta",
-                onClick = onCreateAccountClick,
+                onClick = { onCreateAccountClick(nombre, correo, contrasena, aceptaTerminos) },
                 habilitado = formularioValido,
                 mostrarFlecha = false
             )

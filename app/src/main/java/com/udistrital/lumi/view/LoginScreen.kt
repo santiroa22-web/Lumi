@@ -25,20 +25,23 @@ import androidx.compose.ui.unit.sp
 import com.udistrital.lumi.model.components.BotonPrincipal
 import com.udistrital.lumi.model.components.CampoTexto
 import com.udistrital.lumi.model.theme.FondoDegradado
+import com.udistrital.lumi.model.theme.RojoSuave
 import com.udistrital.lumi.model.theme.TextoGris
 import com.udistrital.lumi.model.theme.TextoOscuro
 import com.udistrital.lumi.model.theme.VerdeLumi
+import com.udistrital.lumi.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit = { _, _ -> }, // <-- Actualizado para recibir correo y contraseña
+    loginViewModel: LoginViewModel, // ViewModel pasado por parámetro para escuchar errores y bloqueo
+    onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {}
 ) {
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
-    val datosValidos = correo.contains("@") && contrasena.length >= 6
+    val datosValidos = correo.contains("@") && contrasena.length >= 6 && !loginViewModel.estaBloqueado
 
     Box(
         modifier = Modifier
@@ -118,12 +121,25 @@ fun LoginScreen(
                 }
             )
 
+            // Mensaje dinámico de error o advertencia de intentos fallidos / bloqueo
+            if (loginViewModel.mensajeError != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = loginViewModel.mensajeError ?: "",
+                    color = RojoSuave,
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             Spacer(modifier = Modifier.height(28.dp))
 
             BotonPrincipal(
-                texto = "Iniciar Sesión",
-                onClick = { onLoginClick(correo, contrasena) }, // <-- Le pasamos los valores escritos aquí
-                habilitado = datosValidos
+                texto = if (loginViewModel.cargando) "Verificando..." else "Iniciar Sesión",
+                onClick = { onLoginClick(correo, contrasena) },
+                habilitado = datosValidos && !loginViewModel.cargando
             )
 
             Spacer(modifier = Modifier.height(20.dp))

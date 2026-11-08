@@ -12,37 +12,59 @@ class LoginViewModel : ViewModel() {
     var cargando by mutableStateOf(false)
         private set
 
-    // Bandera de navegación segura
+    var navegarAOnboarding by mutableStateOf(false) // O navegarAInicio dependiendo de tu ruta
+        private set
+
     var navegarAInicio by mutableStateOf(false)
+        private set
+
+    // Control de intentos fallidos
+    var intentosFallidos by mutableStateOf(0)
+        private set
+
+    var estaBloqueado by mutableStateOf(false)
+        private set
+
+    var mensajeError by mutableStateOf<String?>(null)
         private set
 
     fun iniciarSesion(
         correo: String,
-        contrasena: String,
-        onError: (String) -> Unit
+        contrasena: String
     ) {
-        if (cargando) return
+        if (cargando || estaBloqueado) return
 
-        if (correo.isEmpty() || contrasena.isEmpty()) {
-            onError("Por favor, completa todos los campos.")
+        if (correo.isBlank() || contrasena.isBlank()) {
+            mensajeError = "Por favor, completa todos los campos."
             return
         }
 
         cargando = true
+        mensajeError = null
 
         auth.signInWithEmailAndPassword(correo, contrasena)
             .addOnCompleteListener { task ->
                 cargando = false
                 if (task.isSuccessful) {
-                    // Activamos la bandera para que la UI navegue solita
+                    // Si acierta, reiniciamos los intentos fallidos y dejamos entrar
+                    intentosFallidos = 0
                     navegarAInicio = true
                 } else {
-                    onError(task.exception?.localizedMessage ?: "Credenciales incorrectas")
+                    // Si falla, sumamos un intento fallido
+                    intentosFallidos++
+
+                    if (intentosFallidos >= 5) {
+                        estaBloqueado = true
+                        mensajeError = "Demasiados intentos fallidos. Espera 5 minutos para ingresar."
+                        // Opcional: Aquí podrías programar un Handler o corrutina para desbloquear a los 5 min
+                    } else {
+                        // Mensaje claro de credenciales incorrectas o error de Firebase
+                        mensajeError = "Correo o contraseña incorrectos. (Intentos: $intentosFallidos/5)"
+                    }
                 }
             }
     }
 
-    // Para resetear la bandera después de navegar
     fun reiniciarNavegacion() {
         navegarAInicio = false
     }

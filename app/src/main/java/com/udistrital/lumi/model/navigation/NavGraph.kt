@@ -30,18 +30,21 @@ import com.udistrital.lumi.view.CheckInAnimoScreen
 import com.udistrital.lumi.view.HomeScreen
 import com.udistrital.lumi.view.LoginScreen
 import com.udistrital.lumi.view.MascotaScreen
+import com.udistrital.lumi.view.OlvidoContrasenaScreen
 import com.udistrital.lumi.view.OnboardingScreen
 import com.udistrital.lumi.view.PausaActivaScreen
 import com.udistrital.lumi.view.RachaScreen
 import com.udistrital.lumi.view.RegisterScreen
 import com.udistrital.lumi.view.VinculosScreen
 import com.udistrital.lumi.viewmodel.LoginViewModel
+import com.udistrital.lumi.viewmodel.RecuperacionViewModel
+import com.udistrital.lumi.viewmodel.RegisterViewModel
 
-// Rutas de la app. Antes se usaba un enum con un "when" en MainActivity,
-// pero asi no habia pila de navegacion y el boton atras cerraba la app.
+// Rutas de la app
 object Rutas {
     const val LOGIN = "login"
     const val REGISTRO = "registro"
+    const val OLVIDO_CONTRASENA = "olvido_contrasena"
     const val ONBOARDING = "onboarding"
     const val INICIO = "inicio"
     const val CALENDARIO = "calendario"
@@ -67,10 +70,8 @@ fun LumiApp() {
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
-    // Instanciamos el ViewModel de Login para conectar Firebase aquí
     val loginViewModel: LoginViewModel = viewModel()
 
-    // La barra de abajo solo sale en las 3 pantallas principales
     val mostrarBarra = rutaActual in listOf(Rutas.INICIO, Rutas.CALENDARIO, Rutas.MASCOTA)
 
     Scaffold(
@@ -88,7 +89,6 @@ fun LumiApp() {
                 .consumeWindowInsets(padding)
         ) {
             composable(Rutas.LOGIN) {
-                // Si el ViewModel indica que el login fue exitoso, navegamos al inicio de forma segura
                 if (loginViewModel.navegarAInicio) {
                     LaunchedEffect(Unit) {
                         irAInicio(navController)
@@ -97,27 +97,59 @@ fun LumiApp() {
                 }
 
                 LoginScreen(
+                    loginViewModel = loginViewModel,
                     onLoginClick = { correoInput, contrasenaInput ->
-                        // Conexión real con Firebase usando los datos ingresados
                         loginViewModel.iniciarSesion(
                             correo = correoInput,
-                            contrasena = contrasenaInput,
-                            onError = { mensajeError ->
-                                println("Error de autenticación: $mensajeError")
-                            }
+                            contrasena = contrasenaInput
                         )
                     },
                     onRegisterClick = { navController.navigate(Rutas.REGISTRO) },
                     onForgotPasswordClick = {
-                        navController.navigate("olvido_contrasena")
+                        navController.navigate(Rutas.OLVIDO_CONTRASENA)
+                    }
+                )
+            }
+            composable(Rutas.OLVIDO_CONTRASENA) {
+                val recuperacionViewModel: RecuperacionViewModel = viewModel()
+                OlvidoContrasenaScreen(
+                    viewModel = recuperacionViewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onNavigateNext = {
+                        // Vuelve al login al enviar el enlace correctamente
+                        navController.popBackStack()
                     }
                 )
             }
             composable(Rutas.REGISTRO) {
+                val registerViewModel: RegisterViewModel = viewModel()
+
+                if (registerViewModel.navegarAOnboarding) {
+                    LaunchedEffect(Unit) {
+                        navController.navigate(Rutas.ONBOARDING) {
+                            popUpTo(Rutas.LOGIN)
+                        }
+                        registerViewModel.reiniciarNavegacion()
+                    }
+                }
+
                 RegisterScreen(
                     onBackClick = { navController.popBackStack() },
                     onLoginClick = { navController.popBackStack() },
-                    onCreateAccountClick = { navController.navigate(Rutas.ONBOARDING) }
+                    onCreateAccountClick = { nombre, correo, contrasena, aceptaTerminos ->
+                        registerViewModel.registrarUsuario(
+                            nombreInput = nombre,
+                            correoInput = correo,
+                            contrasenaInput = contrasena,
+                            aceptaTerminosInput = aceptaTerminos,
+                            onExito = {
+                                println("¡Registro de usuario exitoso en Firebase!")
+                            },
+                            onError = { mensajeError ->
+                                println("Error en registro: $mensajeError")
+                            }
+                        )
+                    }
                 )
             }
             composable(Rutas.ONBOARDING) {
@@ -157,7 +189,6 @@ fun LumiApp() {
                 VinculosScreen(
                     onCerrar = { navController.popBackStack(Rutas.INICIO, inclusive = false) },
                     onFinalizar = {
-                        // Se quitan los pasos del check-in para que "atras" no vuelva a ellos
                         navController.navigate(Rutas.RACHA) {
                             popUpTo(Rutas.INICIO)
                         }
@@ -176,7 +207,6 @@ fun LumiApp() {
     }
 }
 
-// Al entrar a la app se borra el login de la pila, asi el boton atras no regresa al login
 private fun irAInicio(navController: NavHostController) {
     navController.navigate(Rutas.INICIO) {
         popUpTo(Rutas.LOGIN) { inclusive = true }
