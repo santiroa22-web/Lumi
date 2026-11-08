@@ -2,6 +2,7 @@ package com.udistrital.lumi.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,20 +22,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.udistrital.lumi.ui.components.BotonPrincipal
-import com.udistrital.lumi.ui.components.CampoTexto
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.components.BotonPrincipal
+import com.udistrital.lumi.model.components.CampoTexto
+import com.udistrital.lumi.model.theme.FondoDegradado
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeLumi
 
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit = {},
-    onRegisterClick: () -> Unit = {}
+    onRegisterClick: () -> Unit = {},
+    onForgotPasswordClick: () -> Unit = {} // <-- Añadido para la navegación
 ) {
-    // Estado de los campos (antes estaban fijos en "" y no se podia escribir)
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
-    // Validacion sencilla mientras no hay backend: correo con @ y clave de 6 o mas caracteres
     val datosValidos = correo.contains("@") && contrasena.length >= 6
 
     Box(
@@ -51,7 +54,6 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.height(56.dp))
 
-            // Logo de Lumi (en el mockup esta el circulo verde con la estrella, antes faltaba)
             Surface(
                 shape = CircleShape,
                 color = VerdeLumi,
@@ -110,14 +112,14 @@ fun LoginScreen(
                         text = "¿Olvidaste la clave?",
                         fontSize = 12.sp,
                         color = VerdeLumi,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.clickable { onForgotPasswordClick() } // <-- Añadido el click para navegar
                     )
                 }
             )
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Solo se habilita si el correo y la clave tienen formato valido
             BotonPrincipal(
                 texto = "Iniciar Sesión",
                 onClick = onLoginClick,
@@ -127,9 +129,6 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(text = "o continúa con", fontSize = 13.sp, color = TextoGris)
-
-            // Se quitaron los botones de Google/Facebook/Apple que no estaban en el mockup.
-            // La arquitectura usa autenticacion propia con JWT, entonces no aplican por ahora.
 
             Spacer(modifier = Modifier.height(16.dp))
 

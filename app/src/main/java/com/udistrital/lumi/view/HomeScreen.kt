@@ -30,9 +30,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
-import com.udistrital.lumi.ui.components.ChipRacha
-import com.udistrital.lumi.ui.components.SelectorAnimo
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.components.ChipRacha
+import com.udistrital.lumi.model.components.SelectorAnimo
+import com.udistrital.lumi.model.theme.AmarilloEnergia
+import com.udistrital.lumi.model.theme.GrisFondo
+import com.udistrital.lumi.model.theme.NaranjaRacha
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeClaro
+import com.udistrital.lumi.model.theme.VerdeLumi
+import com.udistrital.lumi.model.theme.VerdeSuave
 import com.udistrital.lumi.viewmodel.HomeViewModel
 
 @Composable

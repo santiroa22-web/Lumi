@@ -4,8 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.udistrital.lumi.data.DatosDePrueba
-import com.udistrital.lumi.data.DiaSemana
+import com.udistrital.lumi.model.DatosDePrueba
+import com.udistrital.lumi.model.DiaSemana
 
 class CalendarioViewModel : ViewModel() {
 

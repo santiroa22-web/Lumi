@@ -30,9 +30,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.udistrital.lumi.data.DiaSemana
-import com.udistrital.lumi.ui.components.iconoAnimo
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.DiaSemana
+import com.udistrital.lumi.model.components.iconoAnimo
+import com.udistrital.lumi.model.theme.GrisFondo
+import com.udistrital.lumi.model.theme.RojoSuave
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeClaro
+import com.udistrital.lumi.model.theme.VerdeLumi
+import com.udistrital.lumi.model.theme.VerdeSuave
 import com.udistrital.lumi.viewmodel.CalendarioViewModel
 
 @Composable
@@ -106,7 +112,9 @@ fun CalendarioScreen(
                     Text("DETALLE DEL ${diaSeleccionado.nombre}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
                     Text(viewModel.obtenerTextoDetalle(diaSeleccionado.animo), fontSize = 13.sp, color = TextoGris)
                 }
-                Surface(shape = RoundedCornerShape(50), color = Color.White, border = BorderStroke(1.dp, VerdeSuave)) {
+                Surface(shape = RoundedCornerShape(50), color = Color.White, border = BorderStroke(1.dp,
+                    VerdeSuave
+                )) {
                     Text(
                         text = if (diaSeleccionado.animo >= 0) "Completado" else "Pendiente",
                         fontSize = 12.sp,

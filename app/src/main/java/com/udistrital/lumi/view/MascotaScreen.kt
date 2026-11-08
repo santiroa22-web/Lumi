@@ -29,8 +29,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
-import com.udistrital.lumi.ui.components.BarraEstadistica
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.components.BarraEstadistica
+import com.udistrital.lumi.model.theme.AmarilloEnergia
+import com.udistrital.lumi.model.theme.GrisFondo
+import com.udistrital.lumi.model.theme.RojoSuave
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeClaro
+import com.udistrital.lumi.model.theme.VerdeLumi
+import com.udistrital.lumi.model.theme.VerdeSuave
 import com.udistrital.lumi.viewmodel.MascotaViewModel // Importación correcta en singular
 
 @Composable
@@ -104,8 +111,12 @@ fun MascotaScreen(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                BarraEstadistica("nutrición", viewModel.nutricion, Icons.Default.Restaurant, VerdeLumi)
-                BarraEstadistica("felicidad", viewModel.felicidad, Icons.Default.FavoriteBorder, RojoSuave)
+                BarraEstadistica("nutrición", viewModel.nutricion, Icons.Default.Restaurant,
+                    VerdeLumi
+                )
+                BarraEstadistica("felicidad", viewModel.felicidad, Icons.Default.FavoriteBorder,
+                    RojoSuave
+                )
                 BarraEstadistica("energía", viewModel.energia, Icons.Default.Bolt, AmarilloEnergia)
                 BarraEstadistica("bienestar", viewModel.bienestar, Icons.Default.Spa, Color(0xFF7986CB))
             }

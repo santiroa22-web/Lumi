@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -35,9 +34,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
-import com.udistrital.lumi.ui.components.BotonPrincipal
-import com.udistrital.lumi.ui.components.EncabezadoCheckIn
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.components.BotonPrincipal
+import com.udistrital.lumi.model.components.EncabezadoCheckIn
+import com.udistrital.lumi.model.theme.AmarilloEnergia
+import com.udistrital.lumi.model.theme.FondoSuave
+import com.udistrital.lumi.model.theme.GrisBoton
+import com.udistrital.lumi.model.theme.NaranjaRacha
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeClaro
+import com.udistrital.lumi.model.theme.VerdeLumi
+import com.udistrital.lumi.model.theme.VerdeSuave
 import com.udistrital.lumi.viewmodel.Carta
 import com.udistrital.lumi.viewmodel.CheckInViewModel
 

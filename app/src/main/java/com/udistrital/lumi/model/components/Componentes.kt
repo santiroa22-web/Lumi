@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.components
+package com.udistrital.lumi.model.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -28,7 +28,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.DatosDePrueba
+import com.udistrital.lumi.model.theme.GrisBoton
+import com.udistrital.lumi.model.theme.NaranjaRacha
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeClaro
+import com.udistrital.lumi.model.theme.VerdeLumi
+import com.udistrital.lumi.model.theme.VerdeSuave
 
 // Componentes que se repetian en varias pantallas.
 // Antes el TextField estaba copiado 5 veces y ademas tenia value = "" fijo,
@@ -214,7 +221,7 @@ fun EncabezadoCheckIn(
                     Text(titulo, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextoOscuro)
                 }
             }
-            ChipRacha(dias = com.udistrital.lumi.data.DatosDePrueba.DIAS_RACHA)
+            ChipRacha(dias = DatosDePrueba.DIAS_RACHA)
         }
         Spacer(modifier = Modifier.height(12.dp))
         Row(

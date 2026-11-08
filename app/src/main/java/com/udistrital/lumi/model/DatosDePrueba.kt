@@ -1,4 +1,4 @@
-package com.udistrital.lumi.data
+package com.udistrital.lumi.model
 
 // Datos quemados para mostrar las pantallas mientras no tenemos el backend.
 // Cuando este la API REST (Node.js + PostgreSQL) estos datos se van a pedir al servidor.

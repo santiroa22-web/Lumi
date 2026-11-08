@@ -26,8 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.udistrital.lumi.R
-import com.udistrital.lumi.data.MensajeChat
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.MensajeChat
+import com.udistrital.lumi.model.theme.GrisFondo
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeLumi
+import com.udistrital.lumi.model.theme.VerdeSuave
 import com.udistrital.lumi.viewmodel.ChatViewModel
 
 @Composable

@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.theme
+package com.udistrital.lumi.model.theme
 
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color

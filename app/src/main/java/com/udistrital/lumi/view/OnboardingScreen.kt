@@ -24,8 +24,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.udistrital.lumi.R
-import com.udistrital.lumi.ui.components.BotonPrincipal
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.components.BotonPrincipal
+import com.udistrital.lumi.model.theme.FondoSuave
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeClaro
+import com.udistrital.lumi.model.theme.VerdeLumi
 
 @Composable
 fun OnboardingScreen(

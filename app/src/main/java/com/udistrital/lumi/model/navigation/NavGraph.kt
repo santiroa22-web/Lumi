@@ -1,4 +1,4 @@
-package com.udistrital.lumi.ui.navigation
+package com.udistrital.lumi.model.navigation
 
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -18,11 +18,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.udistrital.lumi.ui.screens.*
 
-import com.udistrital.lumi.ui.theme.TextoGris
-import com.udistrital.lumi.ui.theme.VerdeClaro
-import com.udistrital.lumi.ui.theme.VerdeLumi
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.VerdeClaro
+import com.udistrital.lumi.model.theme.VerdeLumi
 import com.udistrital.lumi.view.CalendarioScreen
 import com.udistrital.lumi.view.ChatScreen
 import com.udistrital.lumi.view.CheckInAnimoScreen

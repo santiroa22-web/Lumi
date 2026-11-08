@@ -26,9 +26,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.udistrital.lumi.ui.components.BotonPrincipal
-import com.udistrital.lumi.ui.components.CampoTexto
-import com.udistrital.lumi.ui.theme.*
+import com.udistrital.lumi.model.components.BotonPrincipal
+import com.udistrital.lumi.model.components.CampoTexto
+import com.udistrital.lumi.model.theme.FondoDegradado
+import com.udistrital.lumi.model.theme.RojoSuave
+import com.udistrital.lumi.model.theme.TextoGris
+import com.udistrital.lumi.model.theme.TextoOscuro
+import com.udistrital.lumi.model.theme.VerdeLumi
 
 @Composable
 fun RegisterScreen(

@@ -12,7 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.udistrital.lumi.data.DatosDePrueba
+import com.udistrital.lumi.model.DatosDePrueba
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

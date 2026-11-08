@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.udistrital.lumi.data.DatosDePrueba
+import com.udistrital.lumi.model.DatosDePrueba
 
 class HomeViewModel : ViewModel() {
 
