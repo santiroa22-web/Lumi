@@ -31,9 +31,9 @@ import com.udistrital.lumi.model.theme.VerdeLumi
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit = {},
+    onLoginClick: (String, String) -> Unit = { _, _ -> }, // <-- Actualizado para recibir correo y contraseña
     onRegisterClick: () -> Unit = {},
-    onForgotPasswordClick: () -> Unit = {} // <-- Añadido para la navegación
+    onForgotPasswordClick: () -> Unit = {}
 ) {
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
@@ -113,7 +113,7 @@ fun LoginScreen(
                         fontSize = 12.sp,
                         color = VerdeLumi,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.clickable { onForgotPasswordClick() } // <-- Añadido el click para navegar
+                        modifier = Modifier.clickable { onForgotPasswordClick() }
                     )
                 }
             )
@@ -122,7 +122,7 @@ fun LoginScreen(
 
             BotonPrincipal(
                 texto = "Iniciar Sesión",
-                onClick = onLoginClick,
+                onClick = { onLoginClick(correo, contrasena) }, // <-- Le pasamos los valores escritos aquí
                 habilitado = datosValidos
             )
 

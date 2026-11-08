@@ -8,11 +8,13 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +35,7 @@ import com.udistrital.lumi.view.PausaActivaScreen
 import com.udistrital.lumi.view.RachaScreen
 import com.udistrital.lumi.view.RegisterScreen
 import com.udistrital.lumi.view.VinculosScreen
+import com.udistrital.lumi.viewmodel.LoginViewModel
 
 // Rutas de la app. Antes se usaba un enum con un "when" en MainActivity,
 // pero asi no habia pila de navegacion y el boton atras cerraba la app.
@@ -64,6 +67,9 @@ fun LumiApp() {
     val entradaActual by navController.currentBackStackEntryAsState()
     val rutaActual = entradaActual?.destination?.route
 
+    // Instanciamos el ViewModel de Login para conectar Firebase aquí
+    val loginViewModel: LoginViewModel = viewModel()
+
     // La barra de abajo solo sale en las 3 pantallas principales
     val mostrarBarra = rutaActual in listOf(Rutas.INICIO, Rutas.CALENDARIO, Rutas.MASCOTA)
 
@@ -82,9 +88,29 @@ fun LumiApp() {
                 .consumeWindowInsets(padding)
         ) {
             composable(Rutas.LOGIN) {
+                // Si el ViewModel indica que el login fue exitoso, navegamos al inicio de forma segura
+                if (loginViewModel.navegarAInicio) {
+                    LaunchedEffect(Unit) {
+                        irAInicio(navController)
+                        loginViewModel.reiniciarNavegacion()
+                    }
+                }
+
                 LoginScreen(
-                    onLoginClick = { irAInicio(navController) },
-                    onRegisterClick = { navController.navigate(Rutas.REGISTRO) }
+                    onLoginClick = { correoInput, contrasenaInput ->
+                        // Conexión real con Firebase usando los datos ingresados
+                        loginViewModel.iniciarSesion(
+                            correo = correoInput,
+                            contrasena = contrasenaInput,
+                            onError = { mensajeError ->
+                                println("Error de autenticación: $mensajeError")
+                            }
+                        )
+                    },
+                    onRegisterClick = { navController.navigate(Rutas.REGISTRO) },
+                    onForgotPasswordClick = {
+                        navController.navigate("olvido_contrasena")
+                    }
                 )
             }
             composable(Rutas.REGISTRO) {

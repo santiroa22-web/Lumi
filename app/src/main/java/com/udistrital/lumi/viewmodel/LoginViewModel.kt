@@ -4,30 +4,46 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginViewModel : ViewModel() {
+    private val auth = FirebaseAuth.getInstance()
 
-    var email by mutableStateOf("")
-    var password by mutableStateOf("")
-    var errorMessage by mutableStateOf<String?>(null)
+    var cargando by mutableStateOf(false)
+        private set
 
-    fun onEmailChange(newEmail: String) {
-        email = newEmail
-        errorMessage = null
-    }
+    // Bandera de navegación segura
+    var navegarAInicio by mutableStateOf(false)
+        private set
 
-    fun onPasswordChange(newPassword: String) {
-        password = newPassword
-        errorMessage = null
-    }
+    fun iniciarSesion(
+        correo: String,
+        contrasena: String,
+        onError: (String) -> Unit
+    ) {
+        if (cargando) return
 
-    fun login(onSuccess: () -> Unit) {
-        // Credenciales de prueba actualizadas
-        if (email.trim() == "santiago@prueba.com" && password == "123456") {
-            errorMessage = null
-            onSuccess()
-        } else {
-            errorMessage = "Credenciales incorrectas"
+        if (correo.isEmpty() || contrasena.isEmpty()) {
+            onError("Por favor, completa todos los campos.")
+            return
         }
+
+        cargando = true
+
+        auth.signInWithEmailAndPassword(correo, contrasena)
+            .addOnCompleteListener { task ->
+                cargando = false
+                if (task.isSuccessful) {
+                    // Activamos la bandera para que la UI navegue solita
+                    navegarAInicio = true
+                } else {
+                    onError(task.exception?.localizedMessage ?: "Credenciales incorrectas")
+                }
+            }
+    }
+
+    // Para resetear la bandera después de navegar
+    fun reiniciarNavegacion() {
+        navegarAInicio = false
     }
 }

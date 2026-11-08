@@ -41,7 +41,7 @@ fun OlvidoContrasenaScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "¿Olvidaste la\ncontraseña?",
+                text = "Recuperar\nCuenta",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextoOscuro,
@@ -50,7 +50,7 @@ fun OlvidoContrasenaScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Para recuperar tu cuenta, ingresa tu correo electrónico para recibir un código de verificación",
+                text = "Ingresa tu correo electrónico y te enviaremos un enlace seguro para restablecer tu contraseña.",
                 fontSize = 14.sp,
                 color = TextoGris,
                 textAlign = TextAlign.Center,
@@ -81,19 +81,17 @@ fun OlvidoContrasenaScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             BotonPrincipal(
-                texto = "Enviar Código",
-                onClick = { viewModel.enviarCodigo(onNavigateNext) },
+                texto = "Enviar Enlace",
+                onClick = {
+                    viewModel.enviarEnlaceRecuperacion(
+                        onExito = onNavigateNext,
+                        onError = { mensajeError ->
+                            // Manejo del error en caso de que falle el envío del correo
+                            println("Error al enviar recuperación: $mensajeError")
+                        }
+                    )
+                },
                 habilitado = viewModel.correo.contains("@")
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Volver a iniciar sesión",
-                fontSize = 14.sp,
-                color = TextoGris,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().clickable { onBackClick() }
             )
         }
     }
