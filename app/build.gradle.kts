@@ -58,4 +58,10 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-auth")
+    dependencies {
+        // SDK oficial de Google GenAI para Kotlin
+        implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    }
 }

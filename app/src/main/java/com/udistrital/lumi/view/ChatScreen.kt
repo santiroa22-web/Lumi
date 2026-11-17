@@ -41,10 +41,10 @@ fun ChatScreen(
 ) {
     val estadoLista = rememberLazyListState()
 
-    // Cada vez que se agrega un mensaje desplaza automáticamente al final
-    LaunchedEffect(viewModel.mensajes.size) {
-        if (viewModel.mensajes.isNotEmpty()) {
-            estadoLista.animateScrollToItem(viewModel.mensajes.size - 1)
+    // Cada vez que se agrega un mensaje O cambia el estado de carga, hace scroll al final
+    LaunchedEffect(viewModel.mensajes.size, viewModel.estaCargando) {
+        if (viewModel.mensajes.isNotEmpty() || viewModel.estaCargando) {
+            estadoLista.animateScrollToItem(viewModel.mensajes.size + if (viewModel.estaCargando) 0 else -1)
         }
     }
 
@@ -100,6 +100,29 @@ fun ChatScreen(
             items(viewModel.mensajes) { mensaje ->
                 BurbujaMensaje(mensaje)
             }
+
+            // Indicador visual cuando Lumi está procesando la respuesta con la API
+            if (viewModel.estaCargando) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = VerdeSuave,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "Lumi está pensando...",
+                                fontSize = 13.sp,
+                                color = TextoGris,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         // Campo para escribir
@@ -123,13 +146,15 @@ fun ChatScreen(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                maxLines = 3
+                maxLines = 3,
+                enabled = !viewModel.estaCargando // Opcional: Bloquea mientras responde
             )
             Spacer(modifier = Modifier.width(8.dp))
             FilledIconButton(
                 onClick = { viewModel.enviarMensaje() },
                 modifier = Modifier.size(52.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(containerColor = VerdeLumi)
+                colors = IconButtonDefaults.filledIconButtonColors(containerColor = VerdeLumi),
+                enabled = !viewModel.estaCargando && viewModel.textoNuevo.isNotBlank() // Evita doble envíos
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Enviar", tint = Color.White)
             }
