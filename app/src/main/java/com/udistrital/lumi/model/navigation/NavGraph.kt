@@ -151,6 +151,7 @@ fun LumiApp() {
                             contrasenaInput = contrasena,
                             aceptaTerminosInput = aceptaTerminos,
                             onExito = {
+                                homeViewModel.actualizarNombreUsuario(nombre)
                                 println("¡Registro de usuario exitoso en Firebase!")
                             },
                             onError = { mensajeError ->
@@ -177,7 +178,8 @@ fun LumiApp() {
                 )
             }
             composable(Rutas.CALENDARIO) {
-                CalendarioScreen()
+                // Ahora comparte exactamente el mismo estado de racha y ánimo del Home
+                CalendarioScreen(homeViewModel = homeViewModel)
             }
             composable(Rutas.MASCOTA) {
                 MascotaScreen(onHablarClick = { navController.navigate(Rutas.CHAT) })

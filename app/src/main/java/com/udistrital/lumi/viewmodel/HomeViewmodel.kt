@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.udistrital.lumi.model.DatosDePrueba
 
 class HomeViewModel : ViewModel() {
@@ -17,7 +16,6 @@ class HomeViewModel : ViewModel() {
     var nombreUsuario by mutableStateOf(extraerNombreDeUsuario(auth.currentUser))
         private set
 
-    // Escucha automáticamente cuando el usuario inicia sesión o se registra en Firebase
     private val authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
         nombreUsuario = extraerNombreDeUsuario(firebaseAuth.currentUser)
     }
@@ -43,12 +41,12 @@ class HomeViewModel : ViewModel() {
     var mostrarDetalleRacha by mutableStateOf(true)
         private set
 
-    // Calendario de 2 semanas (14 días)
+    // Calendario de 2 semanas en el Home (14 días, índice 8 = Hoy)
     val etiquetasDias = listOf(
         "L", "M", "X", "J", "V", "S", "D",
         "L", "M", "X", "J", "V", "S", "D"
     )
-    val indiceHoy = 8 // Martes de la segunda semana
+    val indiceHoy = 8
 
     val diasCompletados = mutableStateListOf<Boolean>().apply {
         val previos = DatosDePrueba.DIAS_RACHA.coerceIn(0, 8)
@@ -60,7 +58,7 @@ class HomeViewModel : ViewModel() {
     var animoSeleccionado by mutableStateOf<Int?>(null)
         private set
 
-    private fun extraerNombreDeUsuario(user: FirebaseUser?): String {
+    private fun extraerNombreDeUsuario(user: com.google.firebase.auth.FirebaseUser?): String {
         val display = user?.displayName?.trim()
         if (!display.isNullOrEmpty()) {
             return display.split(" ").first().replaceFirstChar { it.uppercase() }
@@ -128,6 +126,13 @@ class HomeViewModel : ViewModel() {
         onIniciarCheckIn(animo)
     }
 
+    // Guarda el ánimo elegido si el usuario entró por el botón "Completar racha de hoy"
+    fun fijarAnimoTemporal(animo: Int) {
+        if (!checkInCompletadoHoy) {
+            animoSeleccionado = animo
+        }
+    }
+
     fun completarRachaHoy() {
         if (!checkInCompletadoHoy) {
             checkInCompletadoHoy = true
@@ -135,7 +140,7 @@ class HomeViewModel : ViewModel() {
             diasRacha += 1
             diasCompletados[indiceHoy] = true
             if (animoSeleccionado == null) {
-                animoSeleccionado = 4
+                animoSeleccionado = 2 // Neutral si no tocó ninguna carita
             }
         }
     }
