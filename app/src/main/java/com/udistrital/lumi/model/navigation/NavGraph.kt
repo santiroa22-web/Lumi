@@ -27,6 +27,7 @@ import com.udistrital.lumi.model.theme.VerdeLumi
 import com.udistrital.lumi.view.CalendarioScreen
 import com.udistrital.lumi.view.ChatScreen
 import com.udistrital.lumi.view.CheckInAnimoScreen
+import com.udistrital.lumi.view.DiarioScreen
 import com.udistrital.lumi.view.HomeScreen
 import com.udistrital.lumi.view.LoginScreen
 import com.udistrital.lumi.view.MascotaScreen
@@ -35,7 +36,10 @@ import com.udistrital.lumi.view.OnboardingScreen
 import com.udistrital.lumi.view.PausaActivaScreen
 import com.udistrital.lumi.view.RachaScreen
 import com.udistrital.lumi.view.RegisterScreen
+import com.udistrital.lumi.view.RespiracionScreen
 import com.udistrital.lumi.view.VinculosScreen
+import com.udistrital.lumi.viewmodel.DiarioViewModel
+import com.udistrital.lumi.viewmodel.HomeViewModel
 import com.udistrital.lumi.viewmodel.LoginViewModel
 import com.udistrital.lumi.viewmodel.RecuperacionViewModel
 import com.udistrital.lumi.viewmodel.RegisterViewModel
@@ -54,6 +58,8 @@ object Rutas {
     const val CHECKIN_PAUSA = "checkin_pausa"
     const val CHECKIN_VINCULOS = "checkin_vinculos"
     const val RACHA = "racha"
+    const val RESPIRACION = "respiracion"
+    const val DIARIO = "diario"
 }
 
 data class ItemBarra(val ruta: String, val titulo: String, val icono: ImageVector)
@@ -71,6 +77,9 @@ fun LumiApp() {
     val rutaActual = entradaActual?.destination?.route
 
     val loginViewModel: LoginViewModel = viewModel()
+    // ViewModels compartidos en memoria durante toda la sesión
+    val homeViewModel: HomeViewModel = viewModel()
+    val diarioViewModel: DiarioViewModel = viewModel()
 
     val mostrarBarra = rutaActual in listOf(Rutas.INICIO, Rutas.CALENDARIO, Rutas.MASCOTA)
 
@@ -116,7 +125,6 @@ fun LumiApp() {
                     viewModel = recuperacionViewModel,
                     onBackClick = { navController.popBackStack() },
                     onNavigateNext = {
-                        // Vuelve al login al enviar el enlace correctamente
                         navController.popBackStack()
                     }
                 )
@@ -161,7 +169,11 @@ fun LumiApp() {
             composable(Rutas.INICIO) {
                 HomeScreen(
                     onAnimoClick = { navController.navigate(Rutas.CHECKIN_ANIMO) },
-                    onAvatarClick = { navController.navigate(Rutas.CHAT) }
+                    onAvatarClick = { navController.navigate(Rutas.CHAT) },
+                    onCompletarRachaClick = { navController.navigate(Rutas.CHECKIN_ANIMO) },
+                    onRespiracionClick = { navController.navigate(Rutas.RESPIRACION) },
+                    onDiarioClick = { navController.navigate(Rutas.DIARIO) },
+                    viewModel = homeViewModel
                 )
             }
             composable(Rutas.CALENDARIO) {
@@ -172,6 +184,17 @@ fun LumiApp() {
             }
             composable(Rutas.CHAT) {
                 ChatScreen(onBackClick = { navController.popBackStack() })
+            }
+            composable(Rutas.RESPIRACION) {
+                RespiracionScreen(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+            composable(Rutas.DIARIO) {
+                DiarioScreen(
+                    onBackClick = { navController.popBackStack() },
+                    viewModel = diarioViewModel
+                )
             }
             composable(Rutas.CHECKIN_ANIMO) {
                 CheckInAnimoScreen(
@@ -189,6 +212,8 @@ fun LumiApp() {
                 VinculosScreen(
                     onCerrar = { navController.popBackStack(Rutas.INICIO, inclusive = false) },
                     onFinalizar = {
+                        // Al terminar todo el flujo del check-in, sumamos la racha del día
+                        homeViewModel.completarRachaHoy()
                         navController.navigate(Rutas.RACHA) {
                             popUpTo(Rutas.INICIO)
                         }
